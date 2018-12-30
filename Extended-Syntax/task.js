@@ -1,4 +1,4 @@
-
+'use strict';
 
 function calculateQuadraticEquation(){
     let a = +window.a.value;
@@ -11,8 +11,20 @@ function calculateQuadraticEquation(){
 }
 
 function getResult(a,b,c){
-    // код для задачи №1 писать здесь
-    //return x;
+
+    let discriminant = Math.pow(b,2) -(4 * a * c);
+
+    if(discriminant > 0) {
+        let x1 = (-b + Math.sqrt(discriminant)) / (2 * a);
+        let x2 = (-b - Math.sqrt(discriminant)) / (2 * a);
+        let x = [x1,x2];
+        return x;    
+    }else if(discriminant === 0) {
+        let x = -b / (2 * a);
+        return x;        
+    }else {
+        return 'Корней нет!';
+    }
 }
 
 function calculateDrinkTask(){
@@ -23,18 +35,41 @@ function calculateDrinkTask(){
 }
 
 function askDrink(name,dateOfBirthday){
-    // код для задачи №2 писать здесь
-    //console.log(result)
-    //return result;
+    let result = `Сожалею, ${name}, но я не могу вам продать алкоголь. Зато могу предложить вам замечательный клюквенный компот!`
+    console.log(dateOfBirthday.getFullYear()>=18);
+    if(2019 - dateOfBirthday.getFullYear()>=18){
+        result = `Не желаете ли олд-фэшн, ${name}?`;
+        console.log(result);
+        return result;
+    }else {
+        console.log(result);
+        return result;
+
+    }           
 }
 
 function calculateAverageRating(){
-    let marks = window.marks.value.split("").map(Number);
+    let marks = window.marks.value.split(" ").map(Number);
     let averageMark = getAverageMark(marks);
     window.averageMark.textContent = averageMark;
 }
 
 function getAverageMark(marks){
-    // код для задачи №3 писать здесь
-    //return averageMark;
+    let averageMark = 0;
+    let sumMarks = 0;
+    if(marks.length > 5) {
+        console.log(`Введено ${marks.length} оценок!`);
+        for(let i=0;i<5;i++){
+            sumMarks = sumMarks + marks[i];
+        }
+
+        averageMark = sumMarks / 5;
+    }else {
+        for(let i=0;i<marks.length;i++) {
+            sumMarks = sumMarks + marks[i];
+            console.log(sumMarks);
+        }
+
+        averageMark = sumMarks / 5;    }
+    return averageMark;
 }
