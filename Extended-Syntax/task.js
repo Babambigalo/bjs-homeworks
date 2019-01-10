@@ -23,7 +23,9 @@ function getResult(a,b,c){
         let x = -b / (2 * a);
         return x;        
     }else {
-        return 'Корней нет!';
+        console.log('Корней нет!');
+        return null;
+        
     }
 }
 
@@ -35,9 +37,9 @@ function calculateDrinkTask(){
 }
 
 function askDrink(name,dateOfBirthday){
-    let result = `Сожалею, ${name}, но я не могу вам продать алкоголь. Зато могу предложить вам замечательный клюквенный компот!`
+    let result = `Сожалею, ${name} но я не могу вам продать алкоголь. Зато могу предложить вам замечательный клюквенный компот!`
     console.log(dateOfBirthday.getFullYear()>=18);
-    if(2019 - dateOfBirthday.getFullYear()>=18){
+    if(new Date().getFullYear() - dateOfBirthday.getFullYear() >= 18){
         result = `Не желаете ли олд-фэшн, ${name}?`;
         console.log(result);
         return result;
@@ -57,19 +59,16 @@ function calculateAverageRating(){
 function getAverageMark(marks){
     let averageMark = 0;
     let sumMarks = 0;
+    
     if(marks.length > 5) {
         console.log(`Введено ${marks.length} оценок!`);
-        for(let i=0;i<5;i++){
-            sumMarks = sumMarks + marks[i];
-        }
+        marks = marks.slice(0,5);
+    }
 
-        averageMark = sumMarks / 5;
-    }else {
-        for(let i=0;i<marks.length;i++) {
-            sumMarks = sumMarks + marks[i];
-            console.log(sumMarks);
-        }
+    for(let i=0;i<marks.length;i++) {
+        sumMarks = sumMarks + marks[i];
+    }
 
-        averageMark = sumMarks / 5;    }
+    averageMark = sumMarks / marks.length;
     return averageMark;
 }
