@@ -13,13 +13,13 @@ class StudentLog {
     }
 
     addGrade(grade,subject) {
-        if(typeof Number(grade) === 'number' && Number(grade)<6 && Number(grade) > 0) {
-                            
+        if(typeof Number(grade) === 'number' && Number(grade)<=5 && Number(grade) >= 1) {                           
             if(this.subjects[subject] !== undefined) {
                 this.subjects[subject].push(grade);
             }else {
                 this.subjects[subject] = [grade];
             }
+            return this.subjects[subject].length;
         }else {
             console.log(`Вы пытались поставить оценку "${grade}" по предмету "${subject}" . Допустимый предел: 0-5`);
         }
@@ -28,36 +28,24 @@ class StudentLog {
     getAverageBySubject(subject) {
         let gradeSum = 0;
         let average = 0;
-        if (this.subjects[subject] !== undefined) {
-            for(let i = 0; i<this.subjects[subject].length;i++) {
-                gradeSum += this.subjects[subject][i];
+        const foundSubject = this.subjects[subject];
+        if (foundSubject !== undefined) {
+            for(let i = 0; i<foundSubject.length;i++) {
+                gradeSum += foundSubject[i];
             }
-            average = gradeSum/this.subjects[subject].length;
+            average = gradeSum/foundSubject.length;
         }
-        console.log(average);        
+        return average;      
     }
 
-    showSubjects() {
-        return this.subjects;
-    }
     
     getTotalAverage() {
-        if (this.subjects !== {}) {
-            let totalGrade = 0;
-            let totalLengthOfGrade = 0;
-            let totalAverage = 0;
-            for(let subject in this.subjects) {
-                totalLengthOfGrade+=this.subjects[subject].length;
-                for(let i=0;i<this.subjects[subject].length;i++){
-                    totalGrade+=this.subjects[subject][i];
-                }
-            }
-            totalAverage = totalGrade/totalLengthOfGrade;
-            return totalAverage;
-
-        }else {
-            return 0;
+        let totalAverage = 0;
+        for(let subject in this.subjects) {
+            totalAverage += this.getAverageBySubject(subject);              
         }
+        return totalAverage;
+        
     }
 
     getGradesBySubject(subject) {
@@ -75,15 +63,6 @@ class StudentLog {
 
 }
 
-const log = new StudentLog('Jamal Buatang');
-(log.getName());
-(log.addGrade(2,'algebra'));
-(log.addGrade(4,'algebra'));
-(log.addGrade(5,'geometry'));
-(log.addGrade(4,'geometry'));
-(log.addGrade(3,'pool'));
-console.log(log.getGrades());
-
 //задача2
 class Weapon {
     constructor(name,attack,durability,range){
@@ -98,21 +77,24 @@ class Weapon {
         if(this.durability < 0) this.durability = 0;       
     }
 
+    checkDurability(){
+        const thirtyPercent = 0.3;
+        if(this.durability >= this.initDurability * thirtyPercent) return true;
+        if ((this.durability < this.initDurability * thirtyPercent) && this.durability >=0) return false;
+    }
+
     getDamage(){
-        let thirtyPercent = 0.3;
-        if(this.durability >= this.initDurability * thirtyPercent){
-            return this.attack;
-
-        }else if((this.durability < this.initDurability * thirtyPercent) && this.durability >=0){
-            return this.attack/2;
-
-        }else {
-            return 0;
-        }        
+        if(this.checkDurability()===true) return this.attack;
+        if(this.checkDurability() === false) return this.attack/2;
+        if (this.checkDurability()< 0) return 0;
+            
     }
 
     isBroken(){
-        if(this.durability === 0) return true;
+        if(this.durability === 0){
+            return true;
+        }
+        return false;
     }
 }
 
@@ -154,6 +136,7 @@ class Staff extends Weapon{
 class LongBow extends Bow {
     constructor() {
         super('Длинный лук',15,200,4);
+        this.initDurability = 200;
     }
 }
 
@@ -167,6 +150,7 @@ class Axe extends Sword {
 class StormStuff extends Staff {
     constructor() {
         super('Посох Бури',10,300,3);
+        this.initDurability = 300;
     }
 }
 
@@ -190,45 +174,26 @@ class Player {
     }
 
     getDamage(distance){
-        let damage = 0;
-        if (distance<=this.weapon.range && distance !==0) {
-            damage = (this.attack + this.weapon.getDamage())*this.getLuck() / distance;
-        }
-        return damage;
+        if (distance<=this.weapon.range && distance !==0) return (this.attack + this.weapon.getDamage())*this.getLuck() / distance;
+        return 0;
     }
 
     takeDamage(damage) {
-        this.life -= damage;
-        if(this.life >= 0) {
-            return this.life;
-        }else{
-            return 0;
-        }
+        if(this.life-damage >= 0) return this.life-=damage;
+        return this.life = 0;
     }
 
     isDead() {
-        if (this.life === 0) {
-            return true;
-        }else {
-            return false;
-        }
+        const check = (this.life === 0) ? true : false;
+        return check;
     }
 
     moveLeft(distance) {
-        if(this.speed >= distance){
-            this.position -=distance;
-        }else {
-            this.position -=this.speed;
-        }        
+        (this.speed >= distance) ? this.position -=distance : this.position -=this.speed;
     }
 
     moveRight(distance) {
-        if(this.speed >= distance){
-            this.position +=distance;
-        }else {
-            this.position +=this.speed;
-        }
-        
+        (this.speed >= distance) ? this.position +=distance : this.position +=this.speed;
     }
 
     move(distance) {
@@ -236,19 +201,11 @@ class Player {
     }
 
     isAttackBlocked() {
-        if(this.getLuck() > (100 - this.luck)/100) {
-            return true;
-        }else {
-            return false;
-        }
+        (this.getLuck() > (100 - this.luck)/100) ? true : false;
     }
 
     dodged() {
-        if(this.getLuck() > (100-this.agility - this.speed * 3)/100){
-            return true;
-        }else {
-            return false;
-        }
+        (this.getLuck() > (100-this.agility - this.speed * 3)/100) ? true : false;
     }
 
     takeAttack(damage) {
@@ -262,33 +219,30 @@ class Player {
     }
 
     tryAttack(enemy) {
-        let distance = Math.max(this.position,enemy.position) - Math.min(this.position,enemy.position);
+        let distance = Math.abs(this.position-enemy.position);
         if (this.weapon.range >= distance ) {
             this.weapon.takeDamage(10*this.getLuck());
             enemy.takeAttack(this.getDamage(distance));
             if(this.position === enemy.position){
-                enemy.moveLeft(distance); 
+                enemy.moveRight(1); 
                 enemy.takeAttack(this.getDamage(distance)*2);
             } 
         }
     }
 
     chooseEnemy(players) {
-        let enemy = '';
-        if(players[0].name !== this.name){
-            enemy = players[0];            
-        } else {
-            enemy = players[1];           
-        }
+        const enemy = '';
+        (players[0].name !== this.name) ? enemy = players[0] : enemy = players[1];           
         for(let i=0;i<players.length;i++) {
             if(players[i].life < enemy.life && players[i].name !== this.name) {
                 enemy = players[i];
             }
         }
+        return enemy;
     }
 
     moveToEnemy(enemy) {
-        let distance = Math.max(this.position,enemy.position) - Math.min(this.position,enemy.position);
+        let distance = Math.abs(this.position - enemy.position);
         if(this.position > enemy.position) this.moveLeft(distance);
         if(this.position < enemy.position) this.moveRight(distance);
  
@@ -299,13 +253,6 @@ class Player {
         this.moveToEnemy(enemy);
         this.tryAttack(enemy);        
     }
-
-    play(players) {
-        for(let i=0;i<players.length;i++){
-            players[i].turn()
-        }
-    }
-
     
 }
 
@@ -342,8 +289,7 @@ class Archer extends Player {
     }
 
     getDamage(distance) {
-        let damage = (this.attack + this.weapon.getDamage())*getLuck()*distance/this.weapon.range;
-        return damage;
+        return (this.attack + this.weapon.getDamage())*this.getLuck()*distance/this.weapon.range;
     }
 }
 
@@ -382,7 +328,15 @@ class Dwarf extends Warrior {
     }
 
     takeDamage(damage) {
-        if(this.quantityHitsOfEnemy % 6 === 0 && this.getLuck() > 0.5) this.life -= damage/2;                             
+        this.quantityHitsOfEnemy +=1;
+        if(this.quantityHitsOfEnemy % 6 === 0 && this.getLuck() > 0.5 && this.quantityHitsOfEnemy !==0){
+            this.life -= damage/2;
+            console.log('damage = ' + damage, this.quantityHitsOfEnemy);
+        }else {
+            this.life-=damage;
+        }                              
+        
+        
     }
 
 
@@ -412,7 +366,7 @@ class Demiurge extends Mage {
     }
 
     getDamage() {
-        let damage = getDamage();
+        let damage = this.weapon.getDamage();
         if(this.magic > 0 && this.getLuck() > 0.6)  {            
             damage = this.getDamage()*1.5;
         }
@@ -420,27 +374,54 @@ class Demiurge extends Mage {
     }
 }
 
+function play(players) {
+    while(true) {
 
-let player1 = new Warrior('Васька',0);
-let player2 = new Warrior('Петька',1);
+    }
+    
+}
 
-player1.tryAttack(player2);
-console.log(player2.life,player2.magic);
-player1.tryAttack(player2);
-console.log(player2.life,player2.magic);
-player1.tryAttack(player2);
-console.log(player2.life,player2.magic);
-player1.tryAttack(player2);
-console.log(player2.life,player2.magic);
+let war = new Warrior('Vasya',5);
+let archer = new Archer('Petya',6);
+let mage = new Mage('Kolya',7);
+let dwarf = new Dwarf('Sanya',8);
+let crossbowman = new Crossbowman('Vanya',9);
+let demiurge = new Demiurge('Vitya',10);
+demiurge.getDamage();
+console.log(dwarf.life,dwarf.magic);
+dwarf.takeDamage(2);
+console.log(dwarf.life,dwarf.magic);
+dwarf.takeDamage(2);
+console.log(dwarf.life,dwarf.magic);
+dwarf.takeDamage(10);
+console.log(dwarf.life,dwarf.magic);
+dwarf.takeDamage(1);
+console.log(dwarf.life,dwarf.magic);
+dwarf.takeDamage(50);
+console.log(dwarf.life,dwarf.magic,dwarf.quantityHitsOfEnemy);
 
-player1.tryAttack(player2);
-console.log(player2.life,player2.magic);
-player1.tryAttack(player2);
-console.log(player2.life,player2.magic);
-player1.tryAttack(player2);
-console.log(player2.life,player2.magic);
-player1.tryAttack(player2);
-console.log(player2.life,player2.magic);
+
+
+// let player1 = new Warrior('Васька',0);
+// let player2 = new Warrior('Петька',1);
+
+// player1.tryAttack(player2);
+// console.log(player2.life,player2.magic);
+// player1.tryAttack(player2);
+// console.log(player2.life,player2.magic);
+// player1.tryAttack(player2);
+// console.log(player2.life,player2.magic);
+// player1.tryAttack(player2);
+// console.log(player2.life,player2.magic);
+
+// player1.tryAttack(player2);
+// console.log(player2.life,player2.magic);
+// player1.tryAttack(player2);
+// console.log(player2.life,player2.magic);
+// player1.tryAttack(player2);
+// console.log(player2.life,player2.magic);
+// player1.tryAttack(player2);
+// console.log(player2.life,player2.magic);
 
 
 
