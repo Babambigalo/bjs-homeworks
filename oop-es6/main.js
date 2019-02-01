@@ -135,21 +135,33 @@ class Staff extends Weapon{
 
 class LongBow extends Bow {
     constructor() {
-        super('Длинный лук',15,200,4);
+        super();
+        this.name = 'Длинный лук';
+        this.attack =15;
+        this.durability = 200;
+        this.range = 4;
         this.initDurability = 200;
     }
 }
 
 class Axe extends Sword {
     constructor() {
-        super('Секира',27,800,1);
+        super();
+        this.name = 'Секира';
+        this.attack =27;
+        this.durability = 800;
+        this.range = 1;
         this.initDurability = 800;
     }
 }
 
 class StormStuff extends Staff {
     constructor() {
-        super('Посох Бури',10,300,3);
+        super();
+        this.name = 'Посох Бури';
+        this.attack =10;
+        this.durability = 300;
+        this.range = 3;
         this.initDurability = 300;
     }
 }
@@ -184,28 +196,28 @@ class Player {
     }
 
     isDead() {
-        const check = (this.life === 0) ? true : false;
-        return check;
+        return  (this.life <= 0) ? true : false;
+        
     }
 
     moveLeft(distance) {
-        (this.speed >= distance) ? this.position -=distance : this.position -=this.speed;
+        return (this.speed >= distance) ? this.position -=distance : this.position -=this.speed;
     }
 
     moveRight(distance) {
-        (this.speed >= distance) ? this.position +=distance : this.position +=this.speed;
+        return (this.speed >= distance) ? this.position +=distance : this.position +=this.speed;
     }
 
     move(distance) {
-        (distance < 0) ? this.moveLeft(distance) : this.moveRight(distance);
+        return (distance < 0) ? this.moveLeft(distance) : this.moveRight(distance);
     }
 
     isAttackBlocked() {
-        (this.getLuck() > (100 - this.luck)/100) ? true : false;
+        return (this.getLuck() > (100 - this.luck)/100) ? true : false;
     }
 
     dodged() {
-        (this.getLuck() > (100-this.agility - this.speed * 3)/100) ? true : false;
+        return (this.getLuck() > (100-this.agility - this.speed * 3)/100) ? true : false;
     }
 
     takeAttack(damage) {
@@ -219,10 +231,12 @@ class Player {
     }
 
     tryAttack(enemy) {
+        console.log('calling TryAttack function');
         let distance = Math.abs(this.position-enemy.position);
         if (this.weapon.range >= distance ) {
             this.weapon.takeDamage(10*this.getLuck());
             enemy.takeAttack(this.getDamage(distance));
+            console.log('my damage = ' + this.getDamage(distance));
             if(this.position === enemy.position){
                 enemy.moveRight(1); 
                 enemy.takeAttack(this.getDamage(distance)*2);
@@ -231,20 +245,24 @@ class Player {
     }
 
     chooseEnemy(players) {
-        const enemy = '';
-        (players[0].name !== this.name) ? enemy = players[0] : enemy = players[1];           
+        console.log('calling chooseEnemy function');
+        let enemy = (players[0].name !== this.name) ? players[0] : players[1];           
         for(let i=0;i<players.length;i++) {
             if(players[i].life < enemy.life && players[i].name !== this.name) {
                 enemy = players[i];
             }
         }
+        console.log('name enemy = ' +  enemy.name)
         return enemy;
     }
 
     moveToEnemy(enemy) {
+        console.log('calling moveToEnemy function');
         let distance = Math.abs(this.position - enemy.position);
+        console.log('distance = ' + distance);
         if(this.position > enemy.position) this.moveLeft(distance);
         if(this.position < enemy.position) this.moveRight(distance);
+        console.log('position is ' + this.position);
  
     }
 
@@ -269,7 +287,6 @@ class Warrior extends Player {
 
     takeDamage(damage) {
         if(this.life < (this.initLife / 2) && this.getLuck() > 0.8) {
-            console.log(this.magic > 0);
             (this.magic > 0) ? this.magic -=damage : this.life -= damage;
         }else {
             this.life -= damage;
@@ -368,60 +385,41 @@ class Demiurge extends Mage {
     getDamage() {
         let damage = this.weapon.getDamage();
         if(this.magic > 0 && this.getLuck() > 0.6)  {            
-            damage = this.getDamage()*1.5;
+            damage = this.weapon.getDamage()*1.5;
         }
         return damage;
     }
 }
 
 function play(players) {
-    while(true) {
-
-    }
+    const initLength = players.length;
+    let enemyiesWereDead = 0;
+    let i = 0
+    while(enemyiesWereDead <= initLength-1){
+        for(let i = 0; i<players.length;i++) {
+            console.log('now playing is ' + players[i].description + ' whose name is ' + players[i].name);
+            if(players[i].isDead()) {
+                enemyiesWereDead+=1;
+                players.splice(i,1);                              
+            }else{
+                players[i].turn(players);
+            } 
+        
+        }  
+        console.log('конец итерации' + i);
+        i+=1
+    }      
     
 }
 
-let war = new Warrior('Vasya',5);
-let archer = new Archer('Petya',6);
-let mage = new Mage('Kolya',7);
-let dwarf = new Dwarf('Sanya',8);
-let crossbowman = new Crossbowman('Vanya',9);
-let demiurge = new Demiurge('Vitya',10);
-demiurge.getDamage();
-console.log(dwarf.life,dwarf.magic);
-dwarf.takeDamage(2);
-console.log(dwarf.life,dwarf.magic);
-dwarf.takeDamage(2);
-console.log(dwarf.life,dwarf.magic);
-dwarf.takeDamage(10);
-console.log(dwarf.life,dwarf.magic);
-dwarf.takeDamage(1);
-console.log(dwarf.life,dwarf.magic);
-dwarf.takeDamage(50);
-console.log(dwarf.life,dwarf.magic,dwarf.quantityHitsOfEnemy);
+play([new Warrior('Васька',10), 
+      new Warrior('Петька',12),
+      new Mage('Ванька', 0),
+      new Archer('Димка',20),
+      new Archer('Серёжка', 25),
+      new Mage('Колька',15)
+    ]);
 
-
-
-// let player1 = new Warrior('Васька',0);
-// let player2 = new Warrior('Петька',1);
-
-// player1.tryAttack(player2);
-// console.log(player2.life,player2.magic);
-// player1.tryAttack(player2);
-// console.log(player2.life,player2.magic);
-// player1.tryAttack(player2);
-// console.log(player2.life,player2.magic);
-// player1.tryAttack(player2);
-// console.log(player2.life,player2.magic);
-
-// player1.tryAttack(player2);
-// console.log(player2.life,player2.magic);
-// player1.tryAttack(player2);
-// console.log(player2.life,player2.magic);
-// player1.tryAttack(player2);
-// console.log(player2.life,player2.magic);
-// player1.tryAttack(player2);
-// console.log(player2.life,player2.magic);
 
 
 
