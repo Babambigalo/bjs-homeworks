@@ -6,7 +6,6 @@ function compareArrays(arr1,arr2) {
     if(value !== arr2[index] || array.length !== arr2.length) isEqual = false;
     });
     return isEqual;
-
 }
 //задача2
 function memoize(fn,limit) {
